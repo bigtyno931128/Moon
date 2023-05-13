@@ -15,7 +15,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/join")
-    public void join() {
-        userService.join();
+    public void join(String userName , String passwrod) {
+        userService.join(userName,passwrod);
     }
 }

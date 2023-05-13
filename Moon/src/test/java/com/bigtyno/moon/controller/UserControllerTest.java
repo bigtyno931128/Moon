@@ -37,7 +37,7 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.join()).thenReturn(mock(User.class));
+        when(userService.join(userName,password)).thenReturn(mock(User.class));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -53,7 +53,7 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.join()).thenThrow(new Exception());
+        when(userService.join(userName,password)).thenThrow(new Exception());
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -84,7 +84,7 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.login()).thenReturn("test_token");
+        when(userService.login( userName, password)).thenReturn("test_token");
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +100,7 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.login()).thenThrow(new Exception());
+        when(userService.login(userName, password)).thenThrow(new Exception());
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,7 +116,7 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.login()).thenThrow(new Exception());
+        when(userService.login(userName, password)).thenThrow(new Exception());
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
