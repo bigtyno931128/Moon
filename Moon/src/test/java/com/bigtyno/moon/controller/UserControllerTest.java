@@ -1,6 +1,8 @@
 package com.bigtyno.moon.controller;
 
 import com.bigtyno.moon.controller.request.UserJoinRequest;
+import com.bigtyno.moon.exception.ErrorCode;
+import com.bigtyno.moon.exception.MoonApplicationException;
 import com.bigtyno.moon.model.User;
 import com.bigtyno.moon.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,13 +55,13 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.join(userName,password)).thenThrow(new Exception());
+        when(userService.join(userName,password)).thenThrow(new MoonApplicationException(ErrorCode.DUPLICATED_USER_NAME));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
                 ).andDo(print())
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isConflict());
 
     }
 
@@ -100,7 +102,7 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.login(userName, password)).thenThrow(new Exception());
+        when(userService.login(userName, password)).thenThrow(new MoonApplicationException(ErrorCode.USER_NOT_FOUND));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,7 +118,7 @@ public class UserControllerTest {
         String password = "password";
 
         // TODO : Mocking
-        when(userService.login(userName, password)).thenThrow(new Exception());
+        when(userService.login(userName, password)).thenThrow(new MoonApplicationException(ErrorCode.INVALID_PASSWORD));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)

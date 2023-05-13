@@ -10,6 +10,10 @@ public class MoonApplicationException extends RuntimeException {
     private ErrorCode errorCode;
     private String message;
 
+    public MoonApplicationException(ErrorCode errorCode) {
+        this.errorCode = errorCode;
+        this.message = null;
+    }
     @Override
     public String getMessage() {
         if (message == null) {
