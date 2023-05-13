@@ -24,6 +24,7 @@ class ViewControllerTest {
         mvc.perform(get("/posts"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("posts/index"))
                 .andExpect(model().attributeExists("posts"));
 
     }
@@ -35,6 +36,7 @@ class ViewControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("posts/1"))
+                .andExpect(view().name("posts/detail"))
                 .andExpect(model().attributeExists("post"))
                 .andExpect(model().attributeExists("postComments"));
 
@@ -45,6 +47,7 @@ class ViewControllerTest {
 
         mvc.perform(get("/posts/Search"))
                 .andExpect(status().isOk())
+                .andExpect(view().name("posts/search"))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
 
     }
