@@ -173,3 +173,5 @@ gradle-app.setting
 *.iml
 
 *.xml
+
+*.yaml
