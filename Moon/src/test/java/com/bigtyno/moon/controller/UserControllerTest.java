@@ -77,4 +77,52 @@ public class UserControllerTest {
 //                .andExpect(status().is5xxServerError());
 //
 //    }
+
+    @Test
+    public void 로그인() throws Exception {
+        String userName = "userName";
+        String password = "password";
+
+        // TODO : Mocking
+        when(userService.login()).thenReturn("test_token");
+
+        mockMvc.perform(post("/api/v1/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                ).andDo(print())
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void 로그인시_회원가입이_안된_userName_입력할경우_에러반환() throws Exception {
+        String userName = "userName";
+        String password = "password";
+
+        // TODO : Mocking
+        when(userService.login()).thenThrow(new Exception());
+
+        mockMvc.perform(post("/api/v1/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                ).andDo(print())
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void 로그인시_잘못된_패스워드를_입력할경우_에러반환() throws Exception {
+        String userName = "userName";
+        String password = "password";
+
+        // TODO : Mocking
+        when(userService.login()).thenThrow(new Exception());
+
+        mockMvc.perform(post("/api/v1/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+
+    }
 }
