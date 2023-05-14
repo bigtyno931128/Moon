@@ -38,7 +38,7 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling()
+//                .exceptionHandling()
 
 //                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
         ;

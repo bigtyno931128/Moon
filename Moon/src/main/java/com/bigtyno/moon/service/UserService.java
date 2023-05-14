@@ -47,21 +47,14 @@ public class UserService {
 
 
     // TODO : implement
-    public String login(String userName, String password) {
+    public String login(String userName , String password) {
 
-        //회원 가입 여부체크
-        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(()->
-                new MoonApplicationException(ErrorCode.USER_NOT_FOUND,"사용자가 존재하지 않습니다."));
+        User savedUser = loadUserByUserName(userName);
 
-        //비밀번호 체크
-        if(!userEntity.getPassword().equals(password)) {
-            throw new MoonApplicationException(ErrorCode.INVALID_PASSWORD,"비밀번호가 일치 하지 않습니다.");
+        if (!encoder.matches(password, savedUser.getPassword())) {
+            throw new MoonApplicationException(ErrorCode.INVALID_PASSWORD);
         }
-
-        // jwt 토큰 생성
-        String token = JwtTokenUtils.generateAccessToken(userName, secretKey, expiredTimeMs);
-
-        return token;
+        return JwtTokenUtils.generateAccessToken(userName, secretKey,expiredTimeMs);
     }
 
 }
