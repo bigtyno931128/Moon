@@ -39,7 +39,7 @@ public class JwtTokenUtils {
         return expiration.before(new Date());
     }
 
-    public static String generateAccessToken(String username, String key, long expiredTimeMs) {
+    public static String  generateAccessToken(String username, String key, long expiredTimeMs) {
         return doGenerateToken(username, expiredTimeMs, key);
     }
 
