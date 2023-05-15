@@ -1,9 +1,12 @@
 package com.bigtyno.moon.controller;
 
+import com.bigtyno.moon.configurarion.AuthenticationConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -11,9 +14,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DisplayName("View 컨트롤러")
+@Import(AuthenticationConfig.class)
 @WebMvcTest(ViewController.class)
-class ViewControllerTest {
+@AutoConfigureMockMvc
+public class ViewControllerTest {
+
     private final MockMvc mvc;
+
     public ViewControllerTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
