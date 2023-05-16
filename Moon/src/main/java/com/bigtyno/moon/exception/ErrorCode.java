@@ -11,6 +11,8 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"Internal server error"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND,"사용자가 존재 하지 않습니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED,"비밀번호가 틀립니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "token 이 유효하지않습니다."),
+    OVER_DEADLINE(HttpStatus.INTERNAL_SERVER_ERROR, "마감일로 선정한 날짜가 지났습니다.")
     ;
     private final HttpStatus status;
     private final String message;
