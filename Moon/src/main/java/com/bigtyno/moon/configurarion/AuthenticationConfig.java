@@ -1,6 +1,7 @@
 package com.bigtyno.moon.configurarion;
 
 import com.bigtyno.moon.configurarion.frilter.JwtTokenFilter;
+import com.bigtyno.moon.exception.CustomAuthenticationEntryPoint;
 import com.bigtyno.moon.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,25 +36,11 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
                 .authorizeHttpRequests()
                 .antMatchers("/api/*/users/join", "/api/*/users/login").permitAll()
                 .antMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class)
-//                .exceptionHandling()
-
-//                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-        ;
-
+                .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class);
     }
 }
-//public class AuthenticationConfig {
-//
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .authorizeHttpRequests(auth-> auth.anyRequest().permitAll())
-//                .formLogin()
-//                .and().build();
-//    }
-//}

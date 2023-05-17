@@ -1,6 +1,7 @@
 package com.bigtyno.moon.service;
 
 import com.bigtyno.moon.exception.ErrorCode;
+//import com.bigtyno.moon.exception.MoonApplicationException;
 import com.bigtyno.moon.exception.MoonApplicationException;
 import com.bigtyno.moon.model.User;
 import com.bigtyno.moon.model.entity.UserEntity;
@@ -31,6 +32,7 @@ public class UserService {
     public User join(String userName, String password) {
         // 회원 가입하려는 userName으로 회원가입된 사용자가 있는지 ?
         userEntityRepository.findByUserName(userName).ifPresent(it -> {
+//            throw new RuntimeException();
             throw new MoonApplicationException(ErrorCode.DUPLICATED_USER_NAME,"이미 사용중인 닉네임 입니다.");
         });
 
@@ -45,7 +47,6 @@ public class UserService {
                 new MoonApplicationException(ErrorCode.USER_NOT_FOUND,String.format("%s not founded", userName)));
     }
 
-
     // TODO : implement
     public String login(String userName , String password) {
 
@@ -54,6 +55,7 @@ public class UserService {
         if (!encoder.matches(password, savedUser.getPassword())) {
             throw new MoonApplicationException(ErrorCode.INVALID_PASSWORD);
         }
+
         return JwtTokenUtils.generateAccessToken(userName, secretKey,expiredTimeMs);
     }
 
