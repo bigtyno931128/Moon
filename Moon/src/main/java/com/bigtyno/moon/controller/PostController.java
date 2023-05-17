@@ -1,8 +1,10 @@
 package com.bigtyno.moon.controller;
 
 
+import com.bigtyno.moon.controller.request.PostCommentRequest;
 import com.bigtyno.moon.controller.request.PostModifyRequest;
 import com.bigtyno.moon.controller.request.PostWriteRequest;
+import com.bigtyno.moon.controller.response.CommentResponse;
 import com.bigtyno.moon.controller.response.PostResponse;
 import com.bigtyno.moon.controller.response.Response;
 import com.bigtyno.moon.model.User;
@@ -10,6 +12,8 @@ import com.bigtyno.moon.service.PostService;
 import com.bigtyno.moon.util.ClassUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
@@ -41,6 +45,17 @@ public class PostController {
         User user = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), User.class);
         postService.delete(user.getId(), postId);
         return Response.success();
+    }
+
+    @PostMapping("/{postId}/comments")
+    public Response<Void> comment(@PathVariable Long postId, @RequestBody PostCommentRequest request, Authentication authentication) {
+        postService.comment(postId, authentication.getName(), request.getComment());
+        return Response.success();
+    }
+
+    @GetMapping("/{postId}/comments")
+    public Response<Page<CommentResponse>> getComments(Pageable pageable, @PathVariable Long postId) {
+        return Response.success(postService.getComments(postId, pageable).map(CommentResponse::fromComment));
     }
 
 }
