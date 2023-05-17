@@ -3,13 +3,18 @@ package com.bigtyno.moon.service;
 import com.bigtyno.moon.exception.ErrorCode;
 
 import com.bigtyno.moon.exception.MoonApplicationException;
+import com.bigtyno.moon.model.Comment;
 import com.bigtyno.moon.model.Post;
+import com.bigtyno.moon.model.entity.CommentEntity;
 import com.bigtyno.moon.model.entity.PostEntity;
 import com.bigtyno.moon.model.entity.UserEntity;
+import com.bigtyno.moon.repository.CommentEntityRepository;
 import com.bigtyno.moon.repository.PostEntityRepository;
 import com.bigtyno.moon.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +29,8 @@ public class PostService {
 
     private final PostEntityRepository postEntityRepository;
     private final UserEntityRepository userEntityRepository;
+    private final CommentEntityRepository commentEntityRepository;
+
 
     @Transactional
     public void write(String title, String content, Integer star, LocalDate deadLine, String userName ) {
@@ -67,5 +74,22 @@ public class PostService {
         }
 
         postEntityRepository.delete(postEntity);
+    }
+
+    /*
+     댓글 기능
+     */
+    @Transactional
+    public void comment(Long postId, String userName, String comment) {
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new MoonApplicationException(ErrorCode.POST_NOT_FOUND, String.format("postId is %d", postId)));
+        UserEntity userEntity = userEntityRepository.findByUserName(userName)
+                .orElseThrow(() -> new MoonApplicationException(ErrorCode.USER_NOT_FOUND, String.format("userName is %s", userName)));
+
+        commentEntityRepository.save(CommentEntity.of(comment, postEntity, userEntity));
+    }
+
+    public Page<Comment> getComments(Long postId, Pageable pageable) {
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new MoonApplicationException(ErrorCode.POST_NOT_FOUND, String.format("postId is %d", postId)));
+        return commentEntityRepository.findAllByPost(postEntity, pageable).map(Comment::fromEntity);
     }
 }

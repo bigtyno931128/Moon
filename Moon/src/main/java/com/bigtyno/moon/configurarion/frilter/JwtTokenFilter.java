@@ -23,8 +23,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
-
-
+    
     private final String key;
     private final UserService userService;
 
