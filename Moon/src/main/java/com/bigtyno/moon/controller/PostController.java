@@ -35,4 +35,12 @@ public class PostController {
                 PostResponse.fromPost(
                         postService.modify(postId, request.getTitle(), request.getContent(),request.isStatus(),request.getStar(),request.getDeadLine(),user.getId())));
     }
+
+    @DeleteMapping("/{postId}")
+    public Response<Void> delete(@PathVariable Long postId, Authentication authentication) {
+        User user = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), User.class);
+        postService.delete(user.getId(), postId);
+        return Response.success();
+    }
+
 }
