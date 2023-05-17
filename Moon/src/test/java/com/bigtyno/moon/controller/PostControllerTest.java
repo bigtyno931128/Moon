@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -65,7 +66,7 @@ public class PostControllerTest {
     void 할일수정() throws Exception {
         mockMvc.perform(put("/api/v1/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new PostModifyRequest("title", "content",true,2, LocalDate.now()))))
+                        .content(objectMapper.writeValueAsBytes(new PostModifyRequest("title", "content",true,2, LocalDate.now().plusDays(1)))))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -103,6 +104,39 @@ public class PostControllerTest {
                         .content(objectMapper.writeValueAsBytes(new PostModifyRequest("title", "content",true,2, LocalDate.now()))))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    @WithAnonymousUser
+    void 할일삭제시_로그인한상태가_아니라면_에러발생() throws Exception {
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value()));
+    }
+
+    @Test
+    @WithMockUser
+    void 할일삭제시_본인이_작성한_글이_아니라면_에러발생() throws Exception {
+        doThrow(new MoonApplicationException(ErrorCode.INVALID_PERMISSION)).when(postService).delete(any(), eq(1L));
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().is(ErrorCode.INVALID_PERMISSION.getStatus().value()));
+    }
+
+    @Test
+    @WithMockUser
+    void 할일삭제시_삭제하려는글이_없다면_에러발생() throws Exception {
+        doThrow(new MoonApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).delete(any(), eq(1L));
+
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));
     }
 
 }

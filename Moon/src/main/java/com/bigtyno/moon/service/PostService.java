@@ -56,4 +56,16 @@ public class PostService {
 
         return Post.fromEntity(postEntityRepository.saveAndFlush(postEntity));
     }
+
+    @Transactional
+    public void delete(Long userId, Long postId) {
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() ->
+                new MoonApplicationException(ErrorCode.POST_NOT_FOUND));
+
+        if (!Objects.equals(postEntity.getUser().getId(), userId)) {
+            throw new MoonApplicationException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        postEntityRepository.delete(postEntity);
+    }
 }
