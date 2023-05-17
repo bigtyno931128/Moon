@@ -5,6 +5,7 @@ import com.bigtyno.moon.exception.MoonApplicationException;
 import com.bigtyno.moon.fixture.TestInfoFixture;
 import com.bigtyno.moon.fixture.UserEntityFixture;
 import com.bigtyno.moon.model.entity.PostEntity;
+import com.bigtyno.moon.model.entity.UserEntity;
 import com.bigtyno.moon.repository.PostEntityRepository;
 import com.bigtyno.moon.repository.UserEntityRepository;
 import org.junit.jupiter.api.Assertions;
@@ -60,5 +61,39 @@ public class PostServiceTest {
         MoonApplicationException exception = Assertions.assertThrows(MoonApplicationException.class, () -> postService.write(fixture.getTitle(), fixture.getContent(), fixture.getStar(), fixture.getDeadLine(), fixture.getUserName()));
 
         Assertions.assertEquals(ErrorCode.OVER_DEADLINE, exception.getErrorCode());
+    }
+
+    @Test
+    void 할일_수정시_할일이_존재하지_않으면_에러를_내뱉는다() {
+        TestInfoFixture.TestInfo fixture = TestInfoFixture.get();
+        when(postEntityRepository.findById(fixture.getPostId())).thenReturn(Optional.empty());
+        MoonApplicationException exception = Assertions.assertThrows(MoonApplicationException.class, () ->
+                postService.modify(fixture.getPostId(), fixture.getTitle(), fixture.getContent(), fixture.isStatus(),fixture.getStar(),fixture.getDeadLine(),fixture.getUserId()));
+        Assertions.assertEquals(ErrorCode.POST_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    void 할일_수정시_유저가_존재하지_않으면_에러를_내뱉는다() {
+
+        TestInfoFixture.TestInfo fixture = TestInfoFixture.get();
+        when(postEntityRepository.findById(fixture.getPostId())).thenReturn(Optional.of(mock(PostEntity.class)));
+        when(userEntityRepository.findByUserName(fixture.getUserName())).thenReturn(Optional.empty());
+        MoonApplicationException exception = Assertions.assertThrows(MoonApplicationException.class, () ->
+                postService.modify(fixture.getPostId(), fixture.getTitle(), fixture.getContent(), fixture.isStatus(),fixture.getStar(),fixture.getDeadLine(),fixture.getUserId()));
+        Assertions.assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+    }
+
+
+    @Test
+    void 할일_수정시_할일을_작성한_작성자와_유저가_일치하지_않으면_에러를_내뱉는다() {
+        PostEntity mockPostEntity = mock(PostEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
+        TestInfoFixture.TestInfo fixture = TestInfoFixture.get();
+        when(postEntityRepository.findById(fixture.getPostId())).thenReturn(Optional.of(mockPostEntity));
+        when(userEntityRepository.findByUserName(fixture.getUserName())).thenReturn(Optional.of(mockUserEntity));
+        when(mockPostEntity.getUser()).thenReturn(mock(UserEntity.class));
+        MoonApplicationException exception = Assertions.assertThrows(MoonApplicationException.class, () ->
+                postService.modify(fixture.getPostId(), fixture.getTitle(), fixture.getContent(), fixture.isStatus(),fixture.getStar(),fixture.getDeadLine(),fixture.getUserId()));
+        Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
     }
 }

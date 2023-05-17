@@ -72,4 +72,5 @@ public class PostEntity {
         entity.setUser(userEntity);
         return entity;
     }
+
 }
