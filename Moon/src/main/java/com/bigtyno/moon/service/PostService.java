@@ -4,11 +4,15 @@ import com.bigtyno.moon.controller.response.PostResponse;
 import com.bigtyno.moon.exception.ErrorCode;
 
 import com.bigtyno.moon.exception.MoonApplicationException;
+import com.bigtyno.moon.model.AlarmArgs;
+import com.bigtyno.moon.model.AlarmType;
 import com.bigtyno.moon.model.Comment;
 import com.bigtyno.moon.model.Post;
+import com.bigtyno.moon.model.entity.AlarmEntity;
 import com.bigtyno.moon.model.entity.CommentEntity;
 import com.bigtyno.moon.model.entity.PostEntity;
 import com.bigtyno.moon.model.entity.UserEntity;
+import com.bigtyno.moon.repository.AlarmRepository;
 import com.bigtyno.moon.repository.CommentEntityRepository;
 import com.bigtyno.moon.repository.PostEntityRepository;
 import com.bigtyno.moon.repository.UserEntityRepository;
@@ -31,7 +35,7 @@ public class PostService {
     private final PostEntityRepository postEntityRepository;
     private final UserEntityRepository userEntityRepository;
     private final CommentEntityRepository commentEntityRepository;
-
+    private final AlarmRepository alarmRepository;
 
     @Transactional
     public void write(String title, String content, Integer star, LocalDate deadLine, String userName ) {
@@ -74,6 +78,7 @@ public class PostService {
             throw new MoonApplicationException(ErrorCode.INVALID_PERMISSION);
         }
 
+        commentEntityRepository.deleteAllByPost(postEntity);
         postEntityRepository.delete(postEntity);
     }
     public Post detail(Long postId) {
@@ -101,6 +106,9 @@ public class PostService {
                 .orElseThrow(() -> new MoonApplicationException(ErrorCode.USER_NOT_FOUND, String.format("userName is %s", userName)));
 
         commentEntityRepository.save(CommentEntity.of(comment, postEntity, userEntity));
+
+        alarmRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST,
+                new AlarmArgs(userEntity.getId(),postId)));
     }
 
     public Page<Comment> getComments(Long postId, Pageable pageable) {

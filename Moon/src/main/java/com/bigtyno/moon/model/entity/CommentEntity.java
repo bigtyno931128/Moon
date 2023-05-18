@@ -45,7 +45,7 @@ public class CommentEntity {
 
 
     @PrePersist
-    void registeredAt() {
+    void createdAt() {
         this.createdAt = Timestamp.from(Instant.now());
     }
 

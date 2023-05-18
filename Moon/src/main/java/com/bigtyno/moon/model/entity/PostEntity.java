@@ -53,7 +53,7 @@ public class PostEntity {
     private Timestamp removedAt;
 
     @PrePersist
-    void registeredAt() {
+    void createdAt() {
         this.createdAt = Timestamp.from(Instant.now());
     }
 
