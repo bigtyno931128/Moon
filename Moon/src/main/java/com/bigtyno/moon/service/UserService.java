@@ -3,12 +3,16 @@ package com.bigtyno.moon.service;
 import com.bigtyno.moon.exception.ErrorCode;
 //import com.bigtyno.moon.exception.MoonApplicationException;
 import com.bigtyno.moon.exception.MoonApplicationException;
+import com.bigtyno.moon.model.Alarm;
 import com.bigtyno.moon.model.User;
 import com.bigtyno.moon.model.entity.UserEntity;
+import com.bigtyno.moon.repository.AlarmRepository;
 import com.bigtyno.moon.repository.UserEntityRepository;
 import com.bigtyno.moon.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +25,7 @@ public class UserService {
 
     private final UserEntityRepository userEntityRepository;
     private final BCryptPasswordEncoder encoder;
+    private final AlarmRepository alarmRepository;
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -59,4 +64,13 @@ public class UserService {
         return JwtTokenUtils.generateAccessToken(userName, secretKey,expiredTimeMs);
     }
 
+    // 알람 서비스
+    public Page<Alarm> alarmList(String userName, Pageable pageable) {
+
+        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(()->
+                new MoonApplicationException(ErrorCode.USER_NOT_FOUND));
+
+        return alarmRepository.findAllByUser(userEntity,pageable).map(Alarm::fromEntity);
+
+    }
 }
