@@ -46,6 +46,22 @@ public class PostController {
         postService.delete(user.getId(), postId);
         return Response.success();
     }
+    @GetMapping("/{postId}")
+    public Response<PostResponse> detail(@PathVariable Long postId) {
+        return Response.success(
+                PostResponse.fromPost(postService.detail(postId)));
+    }
+    @GetMapping
+    public Response<Page<PostResponse>> list(Pageable pageable) {
+        return Response.success(postService.list(pageable).map(PostResponse::fromPost));
+    }
+
+    @GetMapping("/my")
+    public Response<Page<PostResponse>> myPosts(Pageable pageable, Authentication authentication) {
+        User user = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), User.class);
+        return Response.success(postService.my(user.getId(), pageable).map(PostResponse::fromPost));
+    }
+
 
     @PostMapping("/{postId}/comments")
     public Response<Void> comment(@PathVariable Long postId, @RequestBody PostCommentRequest request, Authentication authentication) {

@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -126,5 +128,30 @@ public class PostServiceTest {
         when(mockPostEntity.getUser()).thenReturn(mock(UserEntity.class));
         MoonApplicationException exception = Assertions.assertThrows(MoonApplicationException.class, () -> postService.delete(fixture.getUserId(), fixture.getPostId()));
         Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, exception.getErrorCode());
+    }
+
+    @Test
+    void 내_할일목록를_가져올_유저가_존재하지_않으면_에러를_내뱉는다() {
+        TestInfoFixture.TestInfo fixture = TestInfoFixture.get();
+        when(userEntityRepository.findByUserName(fixture.getUserName())).thenReturn(Optional.empty());
+        MoonApplicationException exception = Assertions.assertThrows(MoonApplicationException.class, () -> postService.my(fixture.getUserId(), mock(Pageable.class)));
+
+        Assertions.assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+    }
+
+
+    @Test
+    void 할일목록요청이_성공한경우() {
+        Pageable pageable = mock(Pageable.class);
+        when(postEntityRepository.findAll(pageable)).thenReturn(Page.empty());
+        Assertions.assertDoesNotThrow(() -> postService.list(pageable));
+    }
+
+    @Test
+    void 내할일목록요청이_성공한경우() {
+        TestInfoFixture.TestInfo fixture = TestInfoFixture.get();
+        Pageable pageable = mock(Pageable.class);
+        when(postEntityRepository.findAllByUserId(any(), pageable)).thenReturn(Page.empty());
+        Assertions.assertDoesNotThrow(() -> postService.my(fixture.getUserId(), pageable));
     }
 }

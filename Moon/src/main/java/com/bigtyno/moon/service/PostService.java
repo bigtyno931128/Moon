@@ -1,5 +1,6 @@
 package com.bigtyno.moon.service;
 
+import com.bigtyno.moon.controller.response.PostResponse;
 import com.bigtyno.moon.exception.ErrorCode;
 
 import com.bigtyno.moon.exception.MoonApplicationException;
@@ -75,6 +76,20 @@ public class PostService {
 
         postEntityRepository.delete(postEntity);
     }
+    public Post detail(Long postId) {
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() ->
+                new MoonApplicationException(ErrorCode.POST_NOT_FOUND));
+        return Post.fromEntity(postEntity);
+    }
+
+    public Page<Post> list(Pageable pageable) {
+        return postEntityRepository.findAll(pageable).map(Post::fromEntity);
+    }
+
+    public Page<Post> my(Long userId, Pageable pageable) {
+        return postEntityRepository.findAllByUserId(userId, pageable).map(Post::fromEntity);
+    }
+
 
     /*
      댓글 기능
@@ -92,4 +107,6 @@ public class PostService {
         PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new MoonApplicationException(ErrorCode.POST_NOT_FOUND, String.format("postId is %d", postId)));
         return commentEntityRepository.findAllByPost(postEntity, pageable).map(Comment::fromEntity);
     }
+
+
 }
