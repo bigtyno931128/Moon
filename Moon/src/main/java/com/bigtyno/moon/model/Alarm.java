@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class Alarm {
     private Long id;
-    private User user;
     private AlarmType alarmType;
     private AlarmArgs args;
     private Timestamp createdAt;
@@ -21,7 +20,6 @@ public class Alarm {
     public static Alarm fromEntity(AlarmEntity entity) {
         return new Alarm(
                 entity.getId(),
-                User.fromEntity(entity.getUser()),
                 entity.getAlarmType(),
                 entity.getArgs(),
                 entity.getCreatedAt(),

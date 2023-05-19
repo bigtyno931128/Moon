@@ -8,6 +8,7 @@ import com.bigtyno.moon.controller.response.UserJoinResponse;
 import com.bigtyno.moon.controller.response.UserLoginResponse;
 import com.bigtyno.moon.model.User;
 import com.bigtyno.moon.service.UserService;
+import com.bigtyno.moon.util.ClassUtils;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,7 @@ public class UserController {
 
     @GetMapping("/alarm")
     public Response<Page<AlarmResponse>> alarm(Pageable pageable , Authentication authentication) {
-        return Response.success(userService.alarmList(authentication.getName(), pageable).map(AlarmResponse::fromAlarm));
+        User user = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), User.class);
+        return Response.success(userService.alarmList(user.getId(), pageable).map(AlarmResponse::fromAlarm));
     }
 }
