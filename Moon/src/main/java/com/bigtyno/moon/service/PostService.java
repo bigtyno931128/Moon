@@ -36,6 +36,7 @@ public class PostService {
     private final UserEntityRepository userEntityRepository;
     private final CommentEntityRepository commentEntityRepository;
     private final AlarmRepository alarmRepository;
+    private final AlarmService alarmService;
 
     @Transactional
     public void write(String title, String content, Integer star, LocalDate deadLine, String userName ) {
@@ -101,14 +102,17 @@ public class PostService {
      */
     @Transactional
     public void comment(Long postId, String userName, String comment) {
-        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new MoonApplicationException(ErrorCode.POST_NOT_FOUND, String.format("postId is %d", postId)));
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() ->
+                new MoonApplicationException(ErrorCode.POST_NOT_FOUND, String.format("postId is %d", postId)));
+
         UserEntity userEntity = userEntityRepository.findByUserName(userName)
                 .orElseThrow(() -> new MoonApplicationException(ErrorCode.USER_NOT_FOUND, String.format("userName is %s", userName)));
 
         commentEntityRepository.save(CommentEntity.of(comment, postEntity, userEntity));
 
-        alarmRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST,
+        AlarmEntity alarmEntity = alarmRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST,
                 new AlarmArgs(userEntity.getId(),postId)));
+        alarmService.send(postEntity.getUser().getId(), alarmEntity.getId());
     }
 
     public Page<Comment> getComments(Long postId, Pageable pageable) {
