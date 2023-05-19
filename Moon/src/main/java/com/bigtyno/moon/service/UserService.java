@@ -65,12 +65,7 @@ public class UserService {
     }
 
     // 알람 서비스
-    public Page<Alarm> alarmList(String userName, Pageable pageable) {
-
-        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(()->
-                new MoonApplicationException(ErrorCode.USER_NOT_FOUND));
-
-        return alarmRepository.findAllByUser(userEntity,pageable).map(Alarm::fromEntity);
-
+    public Page<Alarm> alarmList(Long userId, Pageable pageable) {
+        return alarmRepository.findAllByUserId(userId,pageable).map(Alarm::fromEntity);
     }
 }
