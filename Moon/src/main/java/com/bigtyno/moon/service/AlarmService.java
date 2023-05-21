@@ -2,7 +2,13 @@ package com.bigtyno.moon.service;
 
 import com.bigtyno.moon.exception.ErrorCode;
 import com.bigtyno.moon.exception.MoonApplicationException;
+import com.bigtyno.moon.model.AlarmArgs;
+import com.bigtyno.moon.model.AlarmType;
+import com.bigtyno.moon.model.entity.AlarmEntity;
+import com.bigtyno.moon.model.entity.UserEntity;
+import com.bigtyno.moon.repository.AlarmRepository;
 import com.bigtyno.moon.repository.EmitterRepository;
+import com.bigtyno.moon.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,13 +25,21 @@ public class AlarmService {
     // 화면단에서 alarm 이라는 이름으로 이벤트를 발생시켜야 구독
     private final static String ALARM_NAME = "alarm";
     private final EmitterRepository emitterRepository;
+    private final AlarmRepository alarmRepository;
+    private final UserEntityRepository userEntityRepository;
 
-    public void send(Long alarmId, Long userId) {
-        emitterRepository.get(userId).ifPresentOrElse(sseEmitter -> {
+    public void send(AlarmType type, AlarmArgs args , Long receivedUserId ) {
+
+        UserEntity user = userEntityRepository.findById(receivedUserId).orElseThrow(()->
+                new MoonApplicationException(ErrorCode.USER_NOT_FOUND));
+        //alarm save
+        AlarmEntity alarmEntity = alarmRepository.save(AlarmEntity.of(user,type,args));
+
+        emitterRepository.get(receivedUserId).ifPresentOrElse(sseEmitter -> {
             try {
-                sseEmitter.send(SseEmitter.event().id(alarmId.toString()).name(ALARM_NAME).data("새로운 알람"));
+                sseEmitter.send(SseEmitter.event().id(alarmEntity.getId().toString()).name(ALARM_NAME).data("새로운 알람"));
             }catch (IOException exception){
-                emitterRepository.delete(userId);
+                emitterRepository.delete(receivedUserId);
                 throw new MoonApplicationException(ErrorCode.ALARM_CONNECT_ERROR);
             }
         }, ()-> log.info("No emitter founded"));

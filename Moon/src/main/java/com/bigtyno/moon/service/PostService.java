@@ -12,6 +12,8 @@ import com.bigtyno.moon.model.entity.AlarmEntity;
 import com.bigtyno.moon.model.entity.CommentEntity;
 import com.bigtyno.moon.model.entity.PostEntity;
 import com.bigtyno.moon.model.entity.UserEntity;
+import com.bigtyno.moon.model.event.AlarmEvent;
+import com.bigtyno.moon.producer.AlarmProducer;
 import com.bigtyno.moon.repository.AlarmRepository;
 import com.bigtyno.moon.repository.CommentEntityRepository;
 import com.bigtyno.moon.repository.PostEntityRepository;
@@ -37,6 +39,7 @@ public class PostService {
     private final CommentEntityRepository commentEntityRepository;
     private final AlarmRepository alarmRepository;
     private final AlarmService alarmService;
+    private final AlarmProducer alarmProducer;
 
     @Transactional
     public void write(String title, String content, Integer star, LocalDate deadLine, String userName ) {
@@ -109,10 +112,7 @@ public class PostService {
                 .orElseThrow(() -> new MoonApplicationException(ErrorCode.USER_NOT_FOUND, String.format("userName is %s", userName)));
 
         commentEntityRepository.save(CommentEntity.of(comment, postEntity, userEntity));
-
-        AlarmEntity alarmEntity = alarmRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST,
-                new AlarmArgs(userEntity.getId(),postId)));
-        alarmService.send(postEntity.getUser().getId(), alarmEntity.getId());
+        alarmProducer.send(new AlarmEvent(postEntity.getUser().getId(),AlarmType.NEW_COMMENT_ON_POST ,new AlarmArgs(userEntity.getId(),postId)));
     }
 
     public Page<Comment> getComments(Long postId, Pageable pageable) {
