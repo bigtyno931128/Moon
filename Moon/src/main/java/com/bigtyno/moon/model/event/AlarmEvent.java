@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AlarmEvent {
 
-    private Long receivedUserId;
+    private Integer receivedUserId;
     private AlarmType alarmType;
     private AlarmArgs alarmArgs;
 

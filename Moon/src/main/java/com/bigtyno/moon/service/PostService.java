@@ -112,7 +112,7 @@ public class PostService {
                 .orElseThrow(() -> new MoonApplicationException(ErrorCode.USER_NOT_FOUND, String.format("userName is %s", userName)));
 
         commentEntityRepository.save(CommentEntity.of(comment, postEntity, userEntity));
-        alarmProducer.send(new AlarmEvent(postEntity.getUser().getId(),AlarmType.NEW_COMMENT_ON_POST ,new AlarmArgs(userEntity.getId(),postId)));
+        alarmProducer.send(new AlarmEvent(Math.toIntExact(postEntity.getUser().getId()),AlarmType.NEW_COMMENT_ON_POST ,new AlarmArgs(userEntity.getId(),postId)));
     }
 
     public Page<Comment> getComments(Long postId, Pageable pageable) {

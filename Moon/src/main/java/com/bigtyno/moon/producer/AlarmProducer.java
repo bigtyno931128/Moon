@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AlarmProducer {
 
-    private final KafkaTemplate<Long, AlarmEvent> kafkaTemplate;
+    private final KafkaTemplate<Integer, AlarmEvent> kafkaTemplate;
 
     @Value("${spring.kafka.topic.alarm}")
     private String topic;
