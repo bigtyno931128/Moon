@@ -2,6 +2,7 @@ package com.bigtyno.moon.controller;
 
 import com.bigtyno.moon.controller.response.CommentResponse;
 import com.bigtyno.moon.controller.response.PostResponse;
+import com.bigtyno.moon.service.PaginationService;
 import com.bigtyno.moon.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import java.util.List;
 public class PostViewController {
 
     private final PostService postService;
+    private final PaginationService paginationService;
 
     // 할일 목록
     @GetMapping("/posts")
@@ -28,9 +30,10 @@ public class PostViewController {
             ModelMap map
     ) {
         Page<PostResponse> posts = postService.list(pageable).map(PostResponse::fromPost);
+        List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(), posts.getTotalPages());
 
         map.addAttribute("posts", posts);
-
+        map.addAttribute("paginationBarNumbers", barNumbers);
 
         return "posts/index";
     }
