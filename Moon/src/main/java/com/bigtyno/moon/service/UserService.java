@@ -7,6 +7,7 @@ import com.bigtyno.moon.model.Alarm;
 import com.bigtyno.moon.model.User;
 import com.bigtyno.moon.model.entity.UserEntity;
 import com.bigtyno.moon.repository.AlarmRepository;
+import com.bigtyno.moon.repository.UserCacheRepository;
 import com.bigtyno.moon.repository.UserEntityRepository;
 import com.bigtyno.moon.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class UserService {
     private final UserEntityRepository userEntityRepository;
     private final BCryptPasswordEncoder encoder;
     private final AlarmRepository alarmRepository;
+    private final UserCacheRepository userCacheRepository;
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -33,39 +35,39 @@ public class UserService {
     @Value("${jwt.token.expired-time-ms}")
     private Long expiredTimeMs;
 
+    public User loadUserByUserName(String userName) {
+        return userCacheRepository.getUser(userName).orElseGet(() ->
+                userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(() ->
+                        new MoonApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName))));
+    }
+
     @Transactional
     public User join(String userName, String password) {
         // 회원 가입하려는 userName으로 회원가입된 사용자가 있는지 ?
         userEntityRepository.findByUserName(userName).ifPresent(it -> {
-//            throw new RuntimeException();
-            throw new MoonApplicationException(ErrorCode.DUPLICATED_USER_NAME,"이미 사용중인 닉네임 입니다.");
+            throw new MoonApplicationException(ErrorCode.DUPLICATED_USER_NAME, "이미 사용중인 닉네임 입니다.");
         });
-
         // 회원 가입 진행
-        UserEntity userEntity = userEntityRepository.save(UserEntity.of(userName,encoder.encode(password)));
+        UserEntity userEntity = userEntityRepository.save(UserEntity.of(userName, encoder.encode(password)));
 
         return User.fromEntity(userEntity);
     }
 
-    public User loadUserByUserName(String userName) {
-        return userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(()->
-                new MoonApplicationException(ErrorCode.USER_NOT_FOUND,String.format("%s not founded", userName)));
-    }
-
     // TODO : implement
-    public String login(String userName , String password) {
+    public String login(String userName, String password) {
 
         User savedUser = loadUserByUserName(userName);
-
+        userCacheRepository.setUser(savedUser);
+        
         if (!encoder.matches(password, savedUser.getPassword())) {
             throw new MoonApplicationException(ErrorCode.INVALID_PASSWORD);
         }
 
-        return JwtTokenUtils.generateAccessToken(userName, secretKey,expiredTimeMs);
+        return JwtTokenUtils.generateAccessToken(userName, secretKey, expiredTimeMs);
     }
 
     // 알람 서비스
     public Page<Alarm> alarmList(Long userId, Pageable pageable) {
-        return alarmRepository.findAllByUserId(userId,pageable).map(Alarm::fromEntity);
+        return alarmRepository.findAllByUserId(userId, pageable).map(Alarm::fromEntity);
     }
 }

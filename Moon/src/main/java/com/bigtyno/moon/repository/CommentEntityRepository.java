@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface CommentEntityRepository extends JpaRepository<CommentEntity, Long> {
     Page<CommentEntity> findAllByPost(PostEntity post, Pageable pageable);
 
-
     @Transactional
     @Modifying
     @Query("UPDATE CommentEntity entity SET removed_at = NOW() where entity.post = :post")
