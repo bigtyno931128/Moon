@@ -1,0 +1,5 @@
+/* 작업목록 테이블 제목 */
+#posts-table > thead a {
+    text-decoration: none;
+    color: black;
+}

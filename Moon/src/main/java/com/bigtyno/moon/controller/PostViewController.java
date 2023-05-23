@@ -1,7 +1,10 @@
 package com.bigtyno.moon.controller;
 
+import com.bigtyno.moon.controller.request.PostWriteRequest;
 import com.bigtyno.moon.controller.response.CommentResponse;
 import com.bigtyno.moon.controller.response.PostResponse;
+import com.bigtyno.moon.model.User;
+import com.bigtyno.moon.model.constant.FormStatus;
 import com.bigtyno.moon.service.PaginationService;
 import com.bigtyno.moon.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -49,4 +54,43 @@ public class PostViewController {
 
         return "posts/detail";
     }
+
+
+    @GetMapping("/form")
+    public String articleForm(ModelMap map) {
+        map.addAttribute("formStatus", FormStatus.CREATE);
+
+        return "posts/form";
+    }
+
+    @PostMapping("/form")
+    public String write(
+            @AuthenticationPrincipal User user,
+            PostWriteRequest request
+    ) {
+        postService.write(request.getTitle(), request.getContent(),request.getStar(),request.getDeadLine(), user.getUsername());
+
+        return "redirect:/posts";
+    }
+
+//    @GetMapping("/{articleId}/form")
+//    public String updateArticleForm(@PathVariable Long articleId, ModelMap map) {
+//        ArticleResponse article = ArticleResponse.from(articleService.getArticle(articleId));
+//
+//        map.addAttribute("article", article);
+//        map.addAttribute("formStatus", FormStatus.UPDATE);
+//
+//        return "articles/form";
+//    }
+//
+//    @PostMapping("/{articleId}/form")
+//    public String updateArticle(
+//            @PathVariable Long articleId,
+//            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+//            ArticleRequest articleRequest
+//    ) {
+//        articleService.updateArticle(articleId, articleRequest.toDto(boardPrincipal.toDto()));
+//
+//        return "redirect:/articles/" + articleId;
+//    }
 }
