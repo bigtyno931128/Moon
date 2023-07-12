@@ -59,6 +59,11 @@ public class UserServiceTest {
         Assertions.assertEquals(ErrorCode.DUPLICATED_USER_NAME, exception.getErrorCode());
     }
 
+//    @Test
+//    void 회원가입시_아이디양식이_맞지않는_경우() {
+//
+//    }
+
     @Test
     void 로그인이_정상적으로_동작하는_경우(){
 

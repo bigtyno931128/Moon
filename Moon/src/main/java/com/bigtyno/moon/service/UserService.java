@@ -37,7 +37,6 @@ public class UserService {
     public User join(String userName, String password) {
         // 회원 가입하려는 userName으로 회원가입된 사용자가 있는지 ?
         userEntityRepository.findByUserName(userName).ifPresent(it -> {
-//            throw new RuntimeException();
             throw new MoonApplicationException(ErrorCode.DUPLICATED_USER_NAME,"이미 사용중인 닉네임 입니다.");
         });
 
